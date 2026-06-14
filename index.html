@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Planner_DM | Enrique César 2026</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">Planner_DM 2026</p>
+      <h1>Agenda 360° Gerente de Distrito</h1>
+      <p class="subtitle">Visibilidad anual, intención de visita, logística, bloqueos y exportación ICS para Outlook.</p>
+    </div>
+    <div class="hero-card">
+      <span>DM</span>
+      <strong>Enrique César</strong>
+      <small>10 tiendas · Centro Norte</small>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="panel controls">
+      <div class="control-grid">
+        <label>Año
+          <select id="yearSelect"><option value="2026">2026</option></select>
+        </label>
+        <label>Mes
+          <select id="monthSelect"></select>
+        </label>
+        <label>Tipo de visita
+          <select id="visitTypeSelect"></select>
+        </label>
+        <label>Tienda foco
+          <select id="storeSelect"></select>
+        </label>
+        <label>Bloqueo desde
+          <input id="blockStart" type="date" />
+        </label>
+        <label>Bloqueo hasta
+          <input id="blockEnd" type="date" />
+        </label>
+        <label>Motivo bloqueo
+          <input id="blockReason" placeholder="Vacaciones, junta, eventualidad..." />
+        </label>
+      </div>
+      <div class="actions">
+        <button id="generateBtn">Generar agenda</button>
+        <button id="addBlockBtn" class="secondary">Agregar bloqueo</button>
+        <button id="exportMonthBtn" class="gold">Exportar ICS del mes</button>
+        <button id="exportYearBtn" class="ghost">Exportar ICS anual</button>
+      </div>
+    </section>
+
+    <section class="kpis" id="kpiCards"></section>
+
+    <section class="layout">
+      <aside class="panel">
+        <h2>Intencionalidad del mes</h2>
+        <div id="campaignCard" class="campaign-card"></div>
+        <h3>Regla de cobertura</h3>
+        <div class="rule-box">
+          <p><strong>Ideal:</strong> cada tienda semanal.</p>
+          <p><strong>Mínimo:</strong> 3 veces por mes o cada 10 días.</p>
+          <p><strong>Fin de semana:</strong> mínimo 1 sábado y 1 domingo al mes.</p>
+        </div>
+        <h3>Ruta sugerida</h3>
+        <div id="routeList" class="route-list"></div>
+      </aside>
+
+      <section class="panel calendar-panel">
+        <div class="calendar-head">
+          <h2 id="calendarTitle">Agenda</h2>
+          <div class="legend">
+            <span><b class="vpp"></b>VPP</span>
+            <span><b class="coach"></b>Observe & Coach</span>
+            <span><b class="quick"></b>Conexión rápida</span>
+            <span><b class="dev"></b>Desarrollo</span>
+            <span><b class="admin"></b>Admin</span>
+          </div>
+        </div>
+        <div class="weekdays"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+      </section>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <h2>Agenda detallada</h2>
+        <input id="searchBox" placeholder="Buscar tienda, actividad, enfoque..." />
+      </div>
+      <div class="table-wrap">
+        <table id="agendaTable">
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Actividad</th><th>Tienda</th><th>Tipo</th><th>Enfoque</th><th>Ruta</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel stores-panel">
+      <h2>Portafolio y nivel de dominio</h2>
+      <div id="storeCards" class="store-cards"></div>
+    </section>
+  </main>
+
+  <template id="dayTemplate">
+    <div class="day"><div class="day-num"></div><div class="events"></div></div>
+  </template>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
