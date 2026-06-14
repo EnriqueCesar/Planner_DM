@@ -2,113 +2,106 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Planner_DM | Enrique César 2026</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Planner DM 2.0 · Enrique Cesar</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header class="hero">
     <div>
-      <p class="eyebrow">Planner_DM 2026</p>
-      <h1>Agenda 360° Gerente de Distrito</h1>
-      <p class="subtitle">Visibilidad anual, intención de visita, logística, bloqueos y exportación ICS para Outlook.</p>
+      <p class="eyebrow">Planner_DM 2.0 · Agenda ejecutiva</p>
+      <h1>Gerente de Distrito 360°</h1>
+      <p class="sub">Visitas, rutas, prioridades, bloqueos, desarrollo SM y exportación ICS para Outlook.</p>
     </div>
-    <div class="hero-card">
-      <span>DM</span>
-      <strong>Enrique César</strong>
-      <small>10 tiendas · Centro Norte</small>
+    <div class="hero-actions">
+      <button id="btnGenerate">Generar agenda</button>
+      <button id="btnIcsMonth" class="secondary">Exportar ICS mes</button>
+      <button id="btnIcsYear" class="secondary">Exportar ICS año</button>
     </div>
   </header>
 
-  <main class="shell">
+  <main>
     <section class="panel controls">
-      <div class="control-grid">
-        <label>Año
-          <select id="yearSelect"><option value="2026">2026</option></select>
-        </label>
-        <label>Mes
-          <select id="monthSelect"></select>
-        </label>
-        <label>Tipo de visita
-          <select id="visitTypeSelect"></select>
-        </label>
-        <label>Tienda foco
-          <select id="storeSelect"></select>
-        </label>
-        <label>Bloqueo desde
-          <input id="blockStart" type="date" />
-        </label>
-        <label>Bloqueo hasta
-          <input id="blockEnd" type="date" />
-        </label>
-        <label>Motivo bloqueo
-          <input id="blockReason" placeholder="Vacaciones, junta, eventualidad..." />
-        </label>
-      </div>
-      <div class="actions">
-        <button id="generateBtn">Generar agenda</button>
-        <button id="addBlockBtn" class="secondary">Agregar bloqueo</button>
-        <button id="exportMonthBtn" class="gold">Exportar ICS del mes</button>
-        <button id="exportYearBtn" class="ghost">Exportar ICS anual</button>
-      </div>
+      <label>Año<select id="year"></select></label>
+      <label>Mes<select id="month"></select></label>
+      <label>Tipo<select id="typeFilter"><option value="Todos">Todos</option></select></label>
+      <label>Tienda<select id="storeFilter"><option value="Todas">Todas</option></select></label>
+      <label>Buscar<input id="search" placeholder="tienda, actividad, enfoque..." /></label>
     </section>
 
-    <section class="kpis" id="kpiCards"></section>
+    <section class="panel block-panel">
+      <h2>Bloqueo de agenda</h2>
+      <div class="block-grid">
+        <label>Desde<input type="date" id="blockStart" /></label>
+        <label>Hasta<input type="date" id="blockEnd" /></label>
+        <label>Motivo<input id="blockReason" value="Vacaciones" /></label>
+        <button id="addBlock">Agregar bloqueo y reajustar</button>
+      </div>
+      <p class="hint">Vacaciones bloquea todo el día. Las visitas físicas se eliminan de ese rango y se reagendan sin repetir tienda dentro de 10 días.</p>
+    </section>
+
+    <section class="kpis">
+      <div class="card"><span>Visitas mes</span><b id="kVisits">0</b></div>
+      <div class="card"><span>Tiendas cubiertas</span><b id="kCovered">0/10</b></div>
+      <div class="card"><span>Tiendas >10 días</span><b id="kRisk">0</b></div>
+      <div class="card"><span>VPP periodo</span><b id="kVpp">0</b></div>
+      <div class="card"><span>Fin de semana</span><b id="kWeekend">0</b></div>
+      <div class="card"><span>Espacio inesperado</span><b id="kBuffer">4h/sem</b></div>
+    </section>
 
     <section class="layout">
-      <aside class="panel">
-        <h2>Intencionalidad del mes</h2>
-        <div id="campaignCard" class="campaign-card"></div>
-        <h3>Regla de cobertura</h3>
-        <div class="rule-box">
-          <p><strong>Ideal:</strong> cada tienda semanal.</p>
-          <p><strong>Mínimo:</strong> 3 veces por mes o cada 10 días.</p>
-          <p><strong>Fin de semana:</strong> mínimo 1 sábado y 1 domingo al mes.</p>
-        </div>
+      <aside class="panel side">
+        <h2>Intencionalidad</h2>
+        <div id="campaignBox"></div>
+        <h3>Radar Approach</h3>
+        <div id="priorityBox"></div>
         <h3>Ruta sugerida</h3>
-        <div id="routeList" class="route-list"></div>
+        <div id="routeBox"></div>
+        <h3>Reglas 2.0</h3>
+        <ul class="rules">
+          <li>Ideal: 1 visita semanal por tienda.</li>
+          <li>Mínimo: 1 visita cada 10 días / 3 al mes.</li>
+          <li>L-V jornada normal. Viernes sí trabaja.</li>
+          <li>Fin de semana = sábado/domingo.</li>
+          <li>1 hora de comida diaria.</li>
+          <li>4 horas semanales para lo inesperado.</li>
+        </ul>
       </aside>
 
       <section class="panel calendar-panel">
-        <div class="calendar-head">
-          <h2 id="calendarTitle">Agenda</h2>
+        <div class="cal-head">
+          <h2 id="calTitle">Agenda</h2>
           <div class="legend">
-            <span><b class="vpp"></b>VPP</span>
-            <span><b class="coach"></b>Observe & Coach</span>
-            <span><b class="quick"></b>Conexión rápida</span>
-            <span><b class="dev"></b>Desarrollo</span>
-            <span><b class="admin"></b>Admin</span>
+            <span><i class="dot vpp"></i>VPP</span>
+            <span><i class="dot oac"></i>Observe & Coach</span>
+            <span><i class="dot quick"></i>Conexión rápida</span>
+            <span><i class="dot dev"></i>Desarrollo</span>
+            <span><i class="dot admin"></i>Admin</span>
+            <span><i class="dot block"></i>Bloqueo</span>
+            <span><i class="dot travel"></i>Traslado/Comida</span>
           </div>
         </div>
-        <div class="weekdays"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
-        <div id="calendarGrid" class="calendar-grid"></div>
+        <div class="weekdays"><b>L</b><b>M</b><b>X</b><b>J</b><b>V</b><b>S</b><b>D</b></div>
+        <div id="calendar" class="calendar"></div>
       </section>
     </section>
 
-    <section class="panel">
-      <div class="section-head">
+    <section class="panel agenda-panel">
+      <div class="table-head">
         <h2>Agenda detallada</h2>
-        <input id="searchBox" placeholder="Buscar tienda, actividad, enfoque..." />
+        <button id="btnToday">Ver pendientes críticos</button>
       </div>
       <div class="table-wrap">
-        <table id="agendaTable">
+        <table>
           <thead><tr><th>Fecha</th><th>Hora</th><th>Actividad</th><th>Tienda</th><th>Tipo</th><th>Enfoque</th><th>Ruta</th></tr></thead>
-          <tbody></tbody>
+          <tbody id="agendaRows"></tbody>
         </table>
       </div>
     </section>
-
-    <section class="panel stores-panel">
-      <h2>Portafolio y nivel de dominio</h2>
-      <div id="storeCards" class="store-cards"></div>
-    </section>
   </main>
 
-  <template id="dayTemplate">
-    <div class="day"><div class="day-num"></div><div class="events"></div></div>
-  </template>
+  <template id="eventTpl"><div class="event"></div></template>
 
-  <script src="js/data.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

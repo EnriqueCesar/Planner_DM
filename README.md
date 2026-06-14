@@ -1,33 +1,41 @@
-# Planner_DM
+# Planner_DM 2.0
 
-Planner anual para Gerente de Distrito Starbucks 2026.
+Agenda ejecutiva para Gerente de Distrito Starbucks 2026.
 
-## Objetivo
-Dar visibilidad 360° de la agenda del DM: visitas por tienda, periodos de campaña, rituales administrativos, bloqueos de agenda, fines de semana trabajados, ruta logística y exportación a Outlook mediante archivos `.ics`.
-
-## Cómo usar
-1. Abre `index.html` en el navegador.
-2. Ajusta mes, tipo de visita, fecha de bloqueo o tienda.
-3. Presiona **Generar agenda**.
-4. Usa **Exportar ICS** para importar a Outlook/Calendar.
+## Qué incluye
+- Agenda anual estratégica desde el 22 de junio al cierre del año.
+- Calendario visual tipo Outlook.
+- Motor de visitas por tienda con regla ideal semanal y mínimo cada 10 días.
+- Bloqueos de agenda: vacaciones bloquea todo el día y elimina visitas físicas del rango.
+- Reajuste automático de visitas después de bloqueos.
+- Viernes como día laboral normal.
+- Fines de semana considerados solo sábado y domingo.
+- 1 hora de comida diaria.
+- 4 horas semanales reservadas para imprevistos.
+- Ruta sugerida por cluster desde Casa Enrique.
+- Priorización por dominio Approach: Aprendizaje, Apropiación, Asesoramiento.
+- Exportación ICS mensual o anual para Outlook.
 
 ## Estructura
-- `index.html`: app principal.
-- `css/styles.css`: estilo visual.
-- `js/data.js`: tiendas, campañas, rituales y reglas.
-- `js/app.js`: motor de agenda, rutas, validaciones e ICS.
-- `data/agenda_base.json`: datos base editables.
+```text
+Planner_DM/
+├── index.html
+├── README.md
+├── css/
+│   └── styles.css
+├── js/
+│   └── app.js
+└── data/
+    └── planner_data.json
+```
 
-## Reglas incluidas
-- 10 tiendas del portafolio Enrique César.
-- Ideal: 1 visita por tienda por semana.
-- Mínimo: 3 visitas por tienda por mes.
-- VPP, Observe & Coach, Conexión rápida y Desarrollo por periodo.
-- Lunes administrativos con posibilidad de 1 a 2 tiendas.
-- Martes 13:00-14:30 Reunión Centro Norte.
-- Al menos 1 sábado y 1 domingo al mes.
-- Mes con 5 fines de semana: trabaja 3 días de fin de semana. Mes con 4 fines: trabaja 2.
-- Gastos, KPI semanal, capacitación, reuniones de portafolio y 1:1.
+## Uso en GitHub Pages
+1. Subir todos los archivos al repositorio.
+2. Ir a Settings > Pages.
+3. Source: Deploy from a branch.
+4. Branch: main.
+5. Folder: /(root).
+6. Save.
 
-## Personalización rápida
-Edita `js/data.js` para actualizar tiendas, campañas, gerentes, coordenadas o reglas.
+## Versión
+2.0
