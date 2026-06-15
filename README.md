@@ -1,30 +1,32 @@
-# Planner_DM 360 · v5.0
+# Planner_DM PWA v6
 
-Agenda anual estratégica para Gerente de Distrito 2026.
+Agenda estratégica DM 360 para Enrique César Flores, lista para GitHub Pages.
 
-## Qué resuelve
+## Qué incluye
+- Calendario mensual + filtro por año, mes, semana, tipo de visita y tienda.
+- Ruta sugerida dinámica por fecha con mapa simple y tiempos de traslado + 10 min de colchón.
+- PWA instalable en celular: manifest, service worker e iconos.
+- Exportación ICS mensual o anual.
+- Bloqueos por rango: elimina visitas físicas dentro del rango y deja bloqueo todo el día.
+- Frecuencias: 1 visita por tienda por semana como reto operativo, sin repetir tienda en la misma semana cuando aplica.
+- Periodos: VPP/SOA, Observe & Coach, System Check Inventario y Conexión rápida por tienda por periodo.
+- CDD: 1 por gerente en meses de conversación: julio y octubre.
+- Martes 12:30–14:00 protegido sin visitas.
+- Lunes 08:30 en tienda; martes/viernes 09:00; miércoles/jueves 08:30; fines de semana 13:00–21:00 o 14:00–22:00.
+- Al menos dos días de sábado/domingo trabajados por mes.
+- Focus Group Subgerentes en julio.
+- Seguimiento semanal de mantenimiento.
 
-- Planeación desde el 22 de junio al cierre de 2026.
-- Rutas cercanas Casa → Tienda 1 → Tienda 2/3 → Casa.
-- Martes 12:30 a 14:00 protegido sin agenda.
-- Lunes 08:30 en tienda; martes y viernes 09:00; miércoles y jueves 08:30.
-- Sábado/domingo rotativos por mes, con jornada de acompañamiento PM.
-- CDD una sola vez por gerente en los meses de conversación: julio y octubre.
-- Frecuencia por periodo de planificación: 1 VPP/SOA, 1 Observe & Coach, 1 System Check Inventario y 1 Conexión rápida por tienda.
-- Bloqueos de agenda que eliminan visitas físicas del periodo seleccionado.
-- Filtro por año, mes, semana, tipo de visita, tienda y búsqueda libre.
-- Mini mapa de ruta sugerida por día.
-- Exportación ICS mensual o anual para Outlook.
+## Cómo subir a GitHub
+1. Descomprime el ZIP.
+2. Sube todo el contenido a la raíz del repositorio `Planner_DM`.
+3. En GitHub Pages selecciona `main` y carpeta `/root`.
+4. Abre la URL publicada.
 
-## Cómo subir a GitHub Pages
-
-1. Sube estos archivos al repositorio `Planner_DM`.
-2. En GitHub ve a Settings → Pages.
-3. Source: Deploy from branch.
-4. Branch: main / root.
-5. Abre la URL publicada.
-
-## Uso recomendado en Outlook
-
-Importa los ICS en un calendario separado llamado **Calendario DM 360**. No lo importes al calendario principal.
-
+## Archivos principales
+- `index.html`
+- `css/styles.css`
+- `js/app.js`
+- `data/agenda_base.js`
+- `manifest.webmanifest`
+- `sw.js`

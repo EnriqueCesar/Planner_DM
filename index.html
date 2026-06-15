@@ -3,86 +3,73 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Planner DM 360 · Enrique 2026</title>
+  <title>Planner DM 360 · Enrique César</title>
+  <meta name="theme-color" content="#006241" />
+  <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
-  <header class="hero">
-    <div>
-      <p class="eyebrow">Planner DM 360 · v5.0</p>
-      <h1>Agenda ejecutiva de visitas 2026</h1>
-      <p class="heroText">Planeación con enfoque Approach: preparación, hombro a hombro, seguimiento, rutas cercanas, frecuencias reales y exportación ICS para Outlook.</p>
+<header class="hero">
+  <div>
+    <p class="eyebrow">Planner DM 360 · PWA</p>
+    <h1>Agenda estratégica de visitas 2026</h1>
+    <p>Visibilidad semanal, rutas cercanas, frecuencias por periodo, enfoque Approach y exportación ICS.</p>
+  </div>
+  <div class="hero-actions">
+    <button id="installBtn" class="ghost hidden">Instalar app</button>
+    <button id="resetBtn" class="ghost">Regenerar base</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel controls">
+    <label>Año<select id="yearSel"><option>2026</option></select></label>
+    <label>Mes<select id="monthSel"></select></label>
+    <label>Semana<select id="weekSel"></select></label>
+    <label>Tipo de visita<select id="typeSel"></select></label>
+    <label>Tienda foco<select id="storeSel"></select></label>
+    <label class="search">Buscar<input id="searchInput" placeholder="Buscar tienda, gerente, actividad, enfoque..." /></label>
+    <label>Bloqueo desde<input id="blockFrom" type="date" /></label>
+    <label>Bloqueo hasta<input id="blockTo" type="date" /></label>
+    <label>Motivo<input id="blockReason" placeholder="Vacaciones, descanso, eventualidad" /></label>
+    <div class="buttons">
+      <button id="generateBtn">Generar agenda</button>
+      <button id="blockBtn" class="secondary">Agregar bloqueo</button>
+      <button id="icsMonthBtn" class="gold">Exportar ICS mes</button>
+      <button id="icsYearBtn" class="outline">Exportar ICS año</button>
     </div>
-    <div class="heroCard">
-      <strong>Reglas clave</strong>
-      <span>1 VPP/SOA · 1 Observe & Coach · 1 Inventario · 1 Conexión por tienda y periodo</span>
-      <span>CDD solo una por gerente en julio y octubre</span>
-      <span>Martes 12:30–14:00 protegido sin agenda</span>
-    </div>
-  </header>
+  </section>
 
-  <main class="wrap">
-    <section class="panel controls">
-      <div class="field"><label>Año</label><select id="year"></select></div>
-      <div class="field"><label>Mes</label><select id="month"></select></div>
-      <div class="field"><label>Semana</label><select id="week"></select></div>
-      <div class="field"><label>Tipo de visita</label><select id="type"></select></div>
-      <div class="field"><label>Tienda foco</label><select id="store"></select></div>
-      <div class="field wide"><label>Buscar</label><input id="search" placeholder="Buscar tienda, gerente, actividad, enfoque..." /></div>
-      <div class="field"><label>Bloqueo desde</label><input id="blockStart" type="date" /></div>
-      <div class="field"><label>Bloqueo hasta</label><input id="blockEnd" type="date" /></div>
-      <div class="field"><label>Motivo</label><input id="blockReason" placeholder="Vacaciones, descanso, eventualidad" /></div>
-      <div class="buttons">
-        <button id="generate">Generar agenda</button>
-        <button id="addBlock" class="secondary">Agregar bloqueo</button>
-        <button id="exportMonth" class="gold">Exportar ICS mes</button>
-        <button id="exportYear" class="outline">Exportar ICS año</button>
+  <section class="kpis" id="kpis"></section>
+
+  <section class="layout">
+    <aside class="sidebar">
+      <article class="panel intention" id="intention"></article>
+      <article class="panel routeBox">
+        <div class="routeHead"><h2>Ruta sugerida</h2><select id="routeDateSel"></select></div>
+        <div id="routeMap" class="routeMap"></div>
+        <div id="routeList"></div>
+      </article>
+      <article class="panel coverage"><h2>Cobertura semanal</h2><div id="coverageList"></div></article>
+    </aside>
+
+    <section class="panel calendarPanel">
+      <div class="calHead">
+        <h2 id="calTitle">Agenda</h2>
+        <div id="legend" class="legend"></div>
       </div>
+      <div id="calendar" class="calendar"></div>
     </section>
+  </section>
 
-    <section class="kpis" id="kpis"></section>
+  <section class="panel detailPanel">
+    <h2>Agenda detallada</h2>
+    <div class="detailTools"><input id="detailSearch" placeholder="Filtrar detalle..." /><button id="copyRouteBtn" class="outline">Copiar ruta del día</button></div>
+    <div class="tableWrap"><table id="detailTable"></table></div>
+  </section>
+</main>
 
-    <section class="gridMain">
-      <aside class="side">
-        <div class="card">
-          <h2>Intencionalidad</h2>
-          <div id="intent"></div>
-        </div>
-        <div class="card routeBox">
-          <div class="routeHeader">
-            <h2>Ruta sugerida</h2>
-            <select id="routeDay"></select>
-          </div>
-          <canvas id="routeCanvas" width="330" height="230"></canvas>
-          <div id="routeSteps" class="routeSteps"></div>
-        </div>
-      </aside>
-
-      <section class="calendar card">
-        <div class="calHead">
-          <h2 id="calendarTitle">Agenda</h2>
-          <div class="legend" id="legend"></div>
-        </div>
-        <div class="weekdays"><b>L</b><b>M</b><b>X</b><b>J</b><b>V</b><b>S</b><b>D</b></div>
-        <div class="monthGrid" id="monthGrid"></div>
-      </section>
-    </section>
-
-    <section class="card detail">
-      <div class="detailTop">
-        <h2>Agenda detallada</h2>
-        <input id="detailSearch" placeholder="Buscar dentro del detalle..." />
-      </div>
-      <div class="tableWrap">
-        <table>
-          <thead><tr><th>Fecha</th><th>Hora</th><th>Actividad</th><th>Tienda</th><th>Tipo</th><th>Enfoque</th><th>Ruta</th></tr></thead>
-          <tbody id="detailBody"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <script src="js/data.js"></script>
-  <script src="js/app.js"></script>
+<script src="data/agenda_base.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
