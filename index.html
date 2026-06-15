@@ -3,79 +3,81 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Planner DM 2026 · Enrique César</title>
+  <title>Planner DM 360 · Enrique 2026</title>
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <header class="hero">
     <div>
-      <p class="eyebrow">Planner DM 2026 · Centro Norte</p>
-      <h1>Agenda ejecutiva para lograr excelencia</h1>
-      <p class="heroText">Planeación estratégica de visitas desde el 22 de junio al cierre del año. Integra ruta, traslado, comida, campaña, visitas por periodo, CDD, seguimiento y adaptación a lo inesperado.</p>
+      <p class="eyebrow">Planner DM 360 · v5.0</p>
+      <h1>Agenda ejecutiva de visitas 2026</h1>
+      <p class="heroText">Planeación con enfoque Approach: preparación, hombro a hombro, seguimiento, rutas cercanas, frecuencias reales y exportación ICS para Outlook.</p>
     </div>
     <div class="heroCard">
-      <strong>Modelo del día</strong>
-      <span>10 h totales</span>
-      <small>2.5 h traslado · 6.5 h en tienda · 1 h comida</small>
+      <strong>Reglas clave</strong>
+      <span>1 VPP/SOA · 1 Observe & Coach · 1 Inventario · 1 Conexión por tienda y periodo</span>
+      <span>CDD solo una por gerente en julio y octubre</span>
+      <span>Martes 12:30–14:00 protegido sin agenda</span>
     </div>
   </header>
 
   <main class="wrap">
     <section class="panel controls">
-      <div class="field"><label>Año</label><select id="yearFilter"><option>2026</option></select></div>
-      <div class="field"><label>Mes</label><select id="monthFilter"></select></div>
-      <div class="field"><label>Semana</label><select id="weekFilter"><option value="all">Todas</option></select></div>
-      <div class="field"><label>Tipo de visita</label><select id="typeFilter"><option value="all">Todas</option></select></div>
-      <div class="field"><label>Tienda foco</label><select id="storeFilter"><option value="all">Todas</option></select></div>
-      <div class="field wide"><label>Buscar</label><input id="searchFilter" placeholder="Buscar tienda, actividad, enfoque, gerente..." /></div>
-      <div class="field"><label>Bloqueo desde</label><input type="date" id="blockStart" value="2026-07-06" /></div>
-      <div class="field"><label>Bloqueo hasta</label><input type="date" id="blockEnd" value="2026-07-12" /></div>
-      <div class="field"><label>Motivo</label><input id="blockReason" value="Vacaciones" /></div>
-      <div class="actions">
-        <button id="generateBtn">Generar agenda</button>
-        <button id="blockBtn" class="secondary">Agregar bloqueo</button>
-        <button id="icsMonthBtn" class="gold">Exportar ICS mes</button>
-        <button id="icsYearBtn" class="outline">Exportar ICS año</button>
+      <div class="field"><label>Año</label><select id="year"></select></div>
+      <div class="field"><label>Mes</label><select id="month"></select></div>
+      <div class="field"><label>Semana</label><select id="week"></select></div>
+      <div class="field"><label>Tipo de visita</label><select id="type"></select></div>
+      <div class="field"><label>Tienda foco</label><select id="store"></select></div>
+      <div class="field wide"><label>Buscar</label><input id="search" placeholder="Buscar tienda, gerente, actividad, enfoque..." /></div>
+      <div class="field"><label>Bloqueo desde</label><input id="blockStart" type="date" /></div>
+      <div class="field"><label>Bloqueo hasta</label><input id="blockEnd" type="date" /></div>
+      <div class="field"><label>Motivo</label><input id="blockReason" placeholder="Vacaciones, descanso, eventualidad" /></div>
+      <div class="buttons">
+        <button id="generate">Generar agenda</button>
+        <button id="addBlock" class="secondary">Agregar bloqueo</button>
+        <button id="exportMonth" class="gold">Exportar ICS mes</button>
+        <button id="exportYear" class="outline">Exportar ICS año</button>
       </div>
     </section>
 
     <section class="kpis" id="kpis"></section>
 
-    <section class="grid2">
-      <aside class="panel sticky">
-        <h2>Intencionalidad</h2>
-        <div id="intentBox"></div>
-        <h2>Ruta sugerida</h2>
-        <div class="routeMap" id="routeMap"></div>
-        <div id="routeList" class="routeList"></div>
+    <section class="gridMain">
+      <aside class="side">
+        <div class="card">
+          <h2>Intencionalidad</h2>
+          <div id="intent"></div>
+        </div>
+        <div class="card routeBox">
+          <div class="routeHeader">
+            <h2>Ruta sugerida</h2>
+            <select id="routeDay"></select>
+          </div>
+          <canvas id="routeCanvas" width="330" height="230"></canvas>
+          <div id="routeSteps" class="routeSteps"></div>
+        </div>
       </aside>
 
-      <section class="panel calendarPanel">
-        <div class="panelTitle">
+      <section class="calendar card">
+        <div class="calHead">
           <h2 id="calendarTitle">Agenda</h2>
           <div class="legend" id="legend"></div>
         </div>
-        <div class="calendar" id="calendar"></div>
+        <div class="weekdays"><b>L</b><b>M</b><b>X</b><b>J</b><b>V</b><b>S</b><b>D</b></div>
+        <div class="monthGrid" id="monthGrid"></div>
       </section>
     </section>
 
-    <section class="panel weeklyPanel">
-      <div class="panelTitle"><h2>Vista semanal dinámica</h2><span id="weekTitle"></span></div>
-      <div class="weekTimeline" id="weekTimeline"></div>
-    </section>
-
-    <section class="panel detailPanel">
-      <div class="panelTitle"><h2>Agenda detallada</h2><span id="detailCount"></span></div>
-      <div class="tableWrap"><table id="detailTable"><thead><tr><th>Fecha</th><th>Hora</th><th>Actividad</th><th>Tienda</th><th>Tipo</th><th>Enfoque</th><th>Ruta</th></tr></thead><tbody></tbody></table></div>
-    </section>
-
-    <section class="panel">
-      <h2>Reglas incorporadas</h2>
-      <div class="rules">
-        <div><b>Cobertura</b><span>Tiendas prioridad: 4 visitas/mes. Tiendas estables: 3 visitas/mes. Ideal semanal y no juntar la misma tienda dentro de 10 días.</span></div>
-        <div><b>Jornada</b><span>Martes a viernes: estar en tienda 08:30. Día de arranque Summer: 20 julio, 06:00 en tienda.</span></div>
-        <div><b>Ruta</b><span>Considera Casa → Tienda 1 → Tienda 2 → Tienda 3 → Casa, con traslados visibles y espacios de adaptación.</span></div>
-        <div><b>Approach</b><span>Visitas con preparación, hombro a hombro, seguimiento, propósito comunicado y siguientes pasos.</span></div>
+    <section class="card detail">
+      <div class="detailTop">
+        <h2>Agenda detallada</h2>
+        <input id="detailSearch" placeholder="Buscar dentro del detalle..." />
+      </div>
+      <div class="tableWrap">
+        <table>
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Actividad</th><th>Tienda</th><th>Tipo</th><th>Enfoque</th><th>Ruta</th></tr></thead>
+          <tbody id="detailBody"></tbody>
+        </table>
       </div>
     </section>
   </main>

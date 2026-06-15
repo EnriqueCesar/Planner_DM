@@ -1,39 +1,30 @@
-# Planner_DM v4.0
+# Planner_DM 360 · v5.0
 
-Agenda ejecutiva para Gerente de Distrito Starbucks 2026.
+Agenda anual estratégica para Gerente de Distrito 2026.
 
-## Qué incluye
+## Qué resuelve
 
-- Agenda anual desde el 22 de junio al cierre de 2026.
-- Filtros dinámicos por año, mes, semana, tipo de visita y tienda.
-- Calendario mensual ejecutivo y vista semanal dinámica.
-- Ruta sugerida del día con mini mapa y secuencia Casa → Tienda 1 → Tienda 2 → Tienda 3 → Casa.
-- Exportación ICS mensual y anual para Outlook.
-- Bloqueos de agenda: elimina visitas físicas del rango seleccionado y mantiene actividades informativas.
-- Jornada estimada de 10 horas: traslados, comida a media jornada, visitas y adaptación a lo inesperado.
-- Día de arranque Summer 2026 con visita desde 06:00.
-- Reglas de cobertura: tiendas de mayor prioridad con más frecuencia, tiendas estables con cobertura mínima mensual.
-- Enfoque Approach: preparación, hombro a hombro, seguimiento, intención de visita y próximos pasos.
+- Planeación desde el 22 de junio al cierre de 2026.
+- Rutas cercanas Casa → Tienda 1 → Tienda 2/3 → Casa.
+- Martes 12:30 a 14:00 protegido sin agenda.
+- Lunes 08:30 en tienda; martes y viernes 09:00; miércoles y jueves 08:30.
+- Sábado/domingo rotativos por mes, con jornada de acompañamiento PM.
+- CDD una sola vez por gerente en los meses de conversación: julio y octubre.
+- Frecuencia por periodo de planificación: 1 VPP/SOA, 1 Observe & Coach, 1 System Check Inventario y 1 Conexión rápida por tienda.
+- Bloqueos de agenda que eliminan visitas físicas del periodo seleccionado.
+- Filtro por año, mes, semana, tipo de visita, tienda y búsqueda libre.
+- Mini mapa de ruta sugerida por día.
+- Exportación ICS mensual o anual para Outlook.
 
-## Estructura
+## Cómo subir a GitHub Pages
 
-```text
-index.html
-css/styles.css
-js/data.js
-js/app.js
-README.md
-```
+1. Sube estos archivos al repositorio `Planner_DM`.
+2. En GitHub ve a Settings → Pages.
+3. Source: Deploy from branch.
+4. Branch: main / root.
+5. Abre la URL publicada.
 
-## Publicación en GitHub Pages
+## Uso recomendado en Outlook
 
-1. Subir todos los archivos al repositorio `Planner_DM`.
-2. Ir a `Settings > Pages`.
-3. Source: `Deploy from a branch`.
-4. Branch: `main`.
-5. Folder: `/root`.
-6. Guardar.
+Importa los ICS en un calendario separado llamado **Calendario DM 360**. No lo importes al calendario principal.
 
-## Nota
-
-La mejora continua se realizará con el uso real de la agenda: al detectar cambios de prioridades, indicadores o bloqueos, se ajusta el motor de visitas y la ruta sugerida.
