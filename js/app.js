@@ -1,267 +1,83 @@
-const D = window.PLANNER_DM_DATA;
-const $ = (id) => document.getElementById(id);
-const pad = n => String(n).padStart(2,'0');
-const dateISO = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const cloneDate = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
-const addDays = (d,n) => { const x=cloneDate(d); x.setDate(x.getDate()+n); return x; };
-const addMinToTime = (hhmm, min) => {
-  const [h,m]=hhmm.split(':').map(Number); let t=h*60+m+min; return `${pad(Math.floor(t/60)%24)}:${pad(t%60)}`;
-};
-const minutesBetween = (a,b) => {
-  const [ah,am]=a.split(':').map(Number), [bh,bm]=b.split(':').map(Number); return (bh*60+bm)-(ah*60+am);
-};
-const monthNames=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const dowNames=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-const weekdayShort=['D','L','M','X','J','V','S'];
-let state={year:2026, month:6, blocks:[], events:[], generated:false};
+const $=id=>document.getElementById(id);
+const MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DOW=['L','M','X','J','V','S','D'];
+let events=[],blocks=[];
 
-function parseISO(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
-function overlapsTime(start,end,bs,be){ return minutesBetween(start,be)>0 && minutesBetween(bs,end)>0; }
-function distKm(a,b){
-  const R=6371, toRad=x=>x*Math.PI/180;
-  const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
-  const lat1=toRad(a.lat), lat2=toRad(b.lat);
-  const h=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2;
-  return 2*R*Math.asin(Math.sqrt(h));
-}
-function travelMin(a,b){ return Math.max(15, Math.round(distKm(a,b)*2.4+18)); }
-function campaignFor(date){ const iso=dateISO(date); return D.campaigns.find(c=>iso>=c.planningStart && iso<=c.planningEnd) || D.campaigns.find(c=>iso>=c.campaignStart && iso<=c.campaignEnd) || D.campaigns[D.campaigns.length-1]; }
-function isBlocked(date){ const iso=dateISO(date); return state.blocks.some(b=>iso>=b.start && iso<=b.end); }
-function blockReason(date){ const iso=dateISO(date); const b=state.blocks.find(b=>iso>=b.start && iso<=b.end); return b?.reason || ''; }
-function priority(store){
-  let p=0; if(store.domain==='APRENDIZAJE') p+=4; if(store.domain==='APROPIACION') p+=2; if(store.tier==='C1') p+=1; if(store.cc==='43193'||store.cc==='38515') p+=2; if(store.type.includes('Mall')) p+=1; return p;
-}
-function approachFocus(store, type, camp){
-  const base = {
-    APRENDIZAJE:'enseñar aptitudes, claridad de estándares, acompañamiento hombro a hombro y seguimiento cercano',
-    APROPIACION:'retos de ejecución, autonomía, resolución de problemas y consistencia del plan',
-    ASESORAMIENTO:'aprovechar mejores prácticas, liderazgo multiplicador y transferencia de capacidades'
-  }[store.domain] || 'ejecución y seguimiento';
-  const typeFocus = {
-    VPP:'priorización, planificación, SOA, calendario del SM y preparación de campaña',
-    SYSTEM:'observación en piso, coaching, distribución, inventario, programación, efectivo, RSA o canales digitales',
-    QUICK:'conexión, reconocimiento, retiro de obstáculos y validación de avances rápidos',
-    CDD:'desarrollo, aspiraciones, retroalimentación honesta y acuerdos de crecimiento'
-  }[type] || 'seguimiento';
-  return `${typeFocus} · ${base} · ${camp.key}`;
-}
-function chooseRouteStores(day, candidates, count){
-  const clusters=['Coacalco','Ecatepec','Izcalli','Perinorte'];
-  const cluster = clusters[day.getDate()%clusters.length];
-  let scoped=candidates.filter(s=>s.cluster===cluster);
-  if(scoped.length<count) scoped=[...scoped, ...candidates.filter(s=>s.cluster!==cluster)];
-  scoped.sort((a,b)=>priority(b)-priority(a));
-  let route=[]; let current=D.dm.home;
-  while(route.length<count && scoped.length){
-    scoped.sort((a,b)=>travelMin(current,a)-travelMin(current,b));
-    const next=scoped.shift(); route.push(next); current=next;
+function date(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function iso(d){return d.toISOString().slice(0,10)}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function dowMon(d){return (d.getDay()+6)%7}
+function fmt(d){return d.toLocaleDateString('es-MX',{weekday:'short',day:'2-digit',month:'short'}).replace('.','')}
+function hmToMin(hm){const [h,m]=hm.split(':').map(Number);return h*60+m}
+function minToHm(n){return `${String(Math.floor(n/60)).padStart(2,'0')}:${String(n%60).padStart(2,'0')}`}
+function inRange(day,start,end){return day>=date(start)&&day<=date(end)}
+function campaignFor(day){return DM_DATA.campaigns.find(c=>inRange(day,c.campaignStart,c.campaignEnd)||inRange(day,c.planningStart,c.planningEnd))||DM_DATA.campaigns[0]}
+function dist(a,b){const R=6371, toRad=x=>x*Math.PI/180; const dLat=toRad(b.lat-a.lat),dLng=toRad(b.lng-a.lng); const lat1=toRad(a.lat),lat2=toRad(b.lat); const q=Math.sin(dLat/2)**2+Math.cos(lat1)*Math.cos(lat2)*Math.sin(dLng/2)**2; return 2*R*Math.atan2(Math.sqrt(q),Math.sqrt(1-q));}
+function travelMin(a,b){return Math.max(15,Math.round((dist(a,b)/32)*60)+10)}
+function event(day,start,end,title,type,store=null,focus='',meta={}){events.push({id:crypto.randomUUID(),date:iso(day),start,end,title,type,store,focus,...meta})}
+function addTravel(day,start,from,to){const mins=travelMin(from,to); event(day,start,minToHm(hmToMin(start)+mins),`Traslado · ${from.name||'Casa'} → ${to.short||to.name}`,'Traslado',to,`${mins} min aprox`,{route:true}); return minToHm(hmToMin(start)+mins)}
+function scoreStore(s,visitCount,lastVisitDate,day){let gap=lastVisitDate?Math.floor((day-lastVisitDate)/86400000):99; return s.priority*100 + gap*9 - visitCount*8 + (s.tier==='C1'?12:0)}
+function visitDuration(type){return {'VPP/SOA':270,'System Check':105,'Conexión rápida':45,'CDD':105,'Arranque campaña':150}[type]||60}
+function getVisitType(day,store,periodCounters){const c=campaignFor(day); const key=`${c.name}|${store.cc}`; if(!periodCounters[key])periodCounters[key]={vpp:0,sc:0,con:0}; const inPlanning=inRange(day,c.planningStart,c.planningEnd); if(inPlanning && !periodCounters[key].vpp){periodCounters[key].vpp++;return 'VPP/SOA'}
+  if(inPlanning && !periodCounters[key].sc){periodCounters[key].sc++;return 'System Check'}
+  if(inPlanning && !periodCounters[key].con){periodCounters[key].con++;return 'Conexión rápida'}
+  const cp=DM_DATA.conversationPeriods.find(p=>inRange(day,p.start,p.end)); if(cp) return 'CDD';
+  return store.priority>=3?'System Check':(store.priority===2?'Conexión rápida':'VPP/SOA');}
+function getFocus(type,store,day){const c=campaignFor(day); const base=DM_DATA.approachFocus[store.domain]; if(type==='VPP/SOA')return `Planeación ${c.name}: prioridades, SOA, distribución, brechas y acuerdo de seguimiento. ${base}`; if(type==='System Check')return `Inventario/procesos/RSA/canales según oportunidad. Observar ejecución, validar estándares y documentar próximos pasos. ${base}`; if(type==='Conexión rápida')return `Contacto breve para acelerar resultado: revisar avance, celebrar logro y acordar siguiente acción. ${base}`; if(type==='CDD')return `Conversación de desempeño y desarrollo: aspiraciones, fortalezas, barreras, compromiso y fecha de seguimiento. ${base}`; if(type==='Arranque campaña')return `Día de arranque: validar preparación de partners, producto, POS, exhibición, muestras y experiencia desde apertura.`; return base;}
+function targetWeekends(month){const y=2026,m=month; let weekends=[]; for(let d=new Date(y,m,1); d.getMonth()===m; d=addDays(d,1)){if([0,6].includes(d.getDay()))weekends.push(new Date(d));} return weekends.length>=10?3:2;}
+function chosenWeekendDays(month){let days=[]; const y=2026,m=month; for(let d=new Date(y,m,1); d.getMonth()===m; d=addDays(d,1)){if(d.getDay()===6||d.getDay()===0)days.push(new Date(d));} return days.filter((_,i)=>[0,2,4].includes(i)).slice(0,targetWeekends(month));}
+function buildAgenda(){events=[]; const start=date(DM_DATA.startDate), end=date(DM_DATA.endDate); const visitCount=Object.fromEntries(DM_DATA.stores.map(s=>[s.cc,0])); const monthCount={}; const lastVisit={}; const periodCounters={}; let weekendSet=new Set(); for(let m=5;m<=11;m++) chosenWeekendDays(m).forEach(d=>weekendSet.add(iso(d)));
+  for(let day=new Date(start); day<=end; day=addDays(day,1)){
+    const dkey=iso(day), dm=dowMon(day), month=day.getMonth(); const isWeekend=dm>=5; const works=(!isWeekend)||weekendSet.has(dkey); if(!works)continue;
+    const campaign=campaignFor(day);
+    if(!monthCount[month]) monthCount[month]=Object.fromEntries(DM_DATA.stores.map(s=>[s.cc,0]));
+    if(dm===0){ event(day,'08:30','09:15','KPI Semanal Portafolio','Administrativo',null,'Validar llenado, ranking de prioridades y focos de seguimiento.'); event(day,'09:15','10:00','Adaptación a lo inesperado','Adaptación',null,'Espacio semanal protegido para ajuste de agenda, urgencias y seguimiento.'); }
+    if(dm===1){ event(day,'13:00','14:30','Reunión Centro Norte','Administrativo',null,'Bloque protegido: no agendar visitas en este horario.'); }
+    if(day.getDate()===30) event(day,'09:00','09:30','Factura Parco','Administrativo',null,'Recordatorio mensual de correo factura Parco.');
+    if(day.getDate()>=3&&day.getDate()<=6) event(day,'17:00','17:30','Ingreso de Gastos','Administrativo',null,'Buscar espacio entre día 3 y 6 del mes.');
+    if(dm===3) event(day,'16:30','17:30','Capacitación DM','Administrativo',null,'Ubits, Attensi u otros cursos de desarrollo.');
+    if(dm===0 && Math.ceil(day.getDate()/7)%2===1) event(day,'13:00','14:00','Reunión virtual portafolio','Administrativo',null,'Todo el portafolio o tiendas bottom según indicador.');
+    if(dm===4 && Math.ceil(day.getDate()/7)%2===0) event(day,'12:00','13:30','Panel Portafolio','CDD',null,'Espacio quincenal para seguimiento de prioridades del portafolio.');
+    const launch=DM_DATA.campaigns.find(c=>c.launch===dkey);
+    const slots=[]; let firstInStore = launch ? '06:00' : (dm===0?'10:00':(isWeekend?'09:00':'08:30'));
+    // build daily store route 2-3 stops with no same store inside 10 days where possible
+    const stopsTarget = launch ? 2 : (isWeekend?2:(dm===1?2:3)); let current=DM_DATA.home; let clock=hmToMin(firstInStore)-travelMin(DM_DATA.home,DM_DATA.stores[0]);
+    if(clock<360) clock=360;
+    let selected=[];
+    for(let i=0;i<stopsTarget;i++){
+      const candidates=DM_DATA.stores.filter(s=>!selected.includes(s.cc)).sort((a,b)=>scoreStore(b,monthCount[month][b.cc],lastVisit[b.cc],day)-scoreStore(a,monthCount[month][a.cc],lastVisit[a.cc],day));
+      let pick=candidates.find(s=>!lastVisit[s.cc]||Math.floor((day-lastVisit[s.cc])/86400000)>=10) || candidates[0];
+      selected.push(pick.cc);
+      let arrive=i===0?firstInStore:minToHm(clock+travelMin(current,pick));
+      if(i>0) arrive=addTravel(day,minToHm(clock),current,pick), clock=hmToMin(arrive);
+      else { const depart=minToHm(hmToMin(arrive)-travelMin(DM_DATA.home,pick)); event(day,depart,arrive,`Traslado · Casa → ${pick.short}`,'Traslado',pick,`${travelMin(DM_DATA.home,pick)} min aprox`,{route:true}); clock=hmToMin(arrive); }
+      if(clock>=780 && clock<840){ event(day,'13:00','14:00','Comida','Comida',pick,'Pausa a media jornada.'); clock=840; }
+      if(launch && i===0){ const dur=visitDuration('Arranque campaña'); event(day,minToHm(clock),minToHm(clock+dur),`Arranque ${launch.name} · ${pick.short}`,'Arranque campaña',pick,getFocus('Arranque campaña',pick,day)); clock+=dur; }
+      const type=getVisitType(day,pick,periodCounters), dur=visitDuration(type); event(day,minToHm(clock),minToHm(clock+dur),`${type} · ${pick.cc} ${pick.name}`,type,pick,getFocus(type,pick,day),{campaign:campaign.name}); clock+=dur; visitCount[pick.cc]++; monthCount[month][pick.cc]++; lastVisit[pick.cc]=new Date(day);
+      current=pick;
+      if(i===0 && !(clock>=780)) { event(day,'13:00','14:00','Comida','Comida',pick,'Pausa a media jornada.'); if(clock<840) clock=840; }
+      if(clock>960) break;
+    }
+    // fill adaptation and return home
+    if(clock<990){ event(day,minToHm(clock),minToHm(Math.min(clock+60,990)),'Adaptación a lo inesperado','Adaptación',null,'Espacio para retroalimentación, notas, ajuste de plan, llamadas o seguimiento no previsto.'); clock=Math.min(clock+60,990); }
+    const ret=travelMin(current,DM_DATA.home); event(day,minToHm(clock),minToHm(clock+ret),`Traslado · ${current.short||current.name} → Casa`,'Traslado',current,`${ret} min aprox`,{route:true});
   }
-  return route;
+  applyBlocks();
 }
-function canUseStore(store, date, lastVisit){
-  const last=lastVisit[store.cc]; if(!last) return true;
-  const delta=(date-parseISO(last))/(1000*60*60*24);
-  return delta>=10;
-}
-function pushEvent(events, e){ events.push({...e, id:`e${events.length+1}`}); }
-function dayStartTime(date){ const dow=date.getDay(); if(dow===1) return '08:00'; if(dow>=2 && dow<=5) return '08:30'; if(dow===6) return '09:00'; if(dow===0) return '10:00'; return '08:30'; }
-function isWorkDay(date){ const dow=date.getDay(); if(dow>=1 && dow<=5) return true; if(dow===6) return date.getDate()<=21; if(dow===0) return [5,19].includes(date.getDate()); return false; }
-function usedWeekendCount(events, year, month){ return events.filter(e=>{const d=parseISO(e.date); return d.getFullYear()===year&&d.getMonth()===month&&(d.getDay()===0||d.getDay()===6)&&e.store;}).length; }
-
-function buildPlan(){
-  const events=[]; const lastVisit={}; const completion={};
-  const start=parseISO(D.dm.startDate), end=parseISO(D.dm.endDate);
-  let visitQueue=[];
-  D.campaigns.forEach(c=>{
-    const ps=parseISO(c.planningStart), pe=parseISO(c.planningEnd);
-    if(pe < start) return;
-    D.stores.forEach(s=>{
-      ['VPP','SYSTEM','QUICK'].forEach(t=>visitQueue.push({period:c.key,type:t,store:s,windowStart:dateISO(ps<start?start:ps),windowEnd:c.planningEnd}));
-    });
-  });
-  D.cddPeriods.forEach(p=>{
-    const ps=parseISO(p.start), pe=parseISO(p.end); if(pe < start) return;
-    D.stores.forEach(s=>visitQueue.push({period:p.quarter,type:'CDD',store:s,windowStart:p.start,windowEnd:p.end}));
-  });
-  visitQueue.sort((a,b)=> a.windowEnd.localeCompare(b.windowEnd) || priority(b.store)-priority(a.store));
-
-  for(let d=start; d<=end; d=addDays(d,1)){
-    const iso=dateISO(d); const dow=d.getDay();
-    if(isBlocked(d)){
-      pushEvent(events,{date:iso,start:'00:00',end:'23:59',title:`Bloqueo · ${blockReason(d)}`,type:'BLOCK',kind:'Bloqueo',focus:'No programar visitas físicas. Reagendar automáticamente.', color:'#4b5563'});
-      continue;
-    }
-    if(!isWorkDay(d)) continue;
-    let current=dayStartTime(d);
-    let dayEnd=addMinToTime(current, 600);
-    let currentLoc=D.dm.home;
-    let dayEvents=[];
-    // Traslado a primera tienda se calcula al elegir tienda, pero no debe romper llegada.
-    if(dow===1){
-      pushEvent(dayEvents,{date:iso,start:'08:30',end:'09:00',title:'KPI Semanal Portafolio',type:'ADMIN',kind:'Administrativo',focus:'Validar captura de KPIs antes de 09:30 y definir foco de tiendas.', color:D.visitTypes.ADMIN.color});
-      current='09:00';
-    }
-    if(dow===2){
-      pushEvent(dayEvents,{date:iso,start:'13:00',end:'14:30',title:'Reunión Centro Norte',type:'ADMIN',kind:'Administrativo',focus:'Espacio reservado; no agendar visitas en este horario.', color:D.visitTypes.ADMIN.color});
-    }
-    if(d.getDate()===30){
-      pushEvent(dayEvents,{date:iso,start:'09:00',end:'09:30',title:'Factura Parco',type:'ADMIN',kind:'Administrativo',focus:'Enviar correo / seguimiento de factura Parco.', color:D.visitTypes.ADMIN.color});
-    }
-    if(d.getDate()>=3 && d.getDate()<=6){
-      pushEvent(dayEvents,{date:iso,start:'17:00',end:'17:30',title:'Ingreso de Gastos',type:'ADMIN',kind:'Administrativo',focus:'Captura mensual de gastos.', color:D.visitTypes.ADMIN.color});
-    }
-    if(dow===4){
-      pushEvent(dayEvents,{date:iso,start:'16:30',end:'17:30',title:'Capacitación DM',type:'ADMIN',kind:'Administrativo',focus:'Ubits, Attensi u otros recursos de desarrollo.', color:D.visitTypes.ADMIN.color});
-    }
-    if(dow===1 && Math.ceil(d.getDate()/7)%2===0){
-      pushEvent(dayEvents,{date:iso,start:'13:00',end:'14:00',title:'Reunión virtual portafolio',type:'ADMIN',kind:'Administrativo',focus:'Portafolio total o tiendas bottom según indicador.', color:D.visitTypes.ADMIN.color});
-    }
-    if(dow===3 && Math.ceil(d.getDate()/7)===2){
-      pushEvent(dayEvents,{date:iso,start:'10:00',end:'12:00',title:'Reunión Portafolio · Coacalco',type:'ADMIN',kind:'Portafolio',store:D.stores.find(s=>s.cc==='38401'),focus:'Resultados, alineación de portafolio y compromisos.', color:'#7b3f98'});
-    }
-    if(dow===5 && Math.ceil(d.getDate()/7)%2===1){
-      pushEvent(dayEvents,{date:iso,start:'12:00',end:'13:30',title:'Panel Portafolio',type:'ADMIN',kind:'Portafolio',focus:'Espacio quincenal de análisis y soporte en ruta.', color:'#7b3f98'});
-    }
-
-    // Select pending visits inside due window and not repeated within 10 days.
-    let available=visitQueue.filter(v=>!v.done && iso>=v.windowStart && iso<=v.windowEnd && canUseStore(v.store,d,lastVisit));
-    // If urgent (window end near) relax 10-day rule.
-    if(available.length<2){
-      available=visitQueue.filter(v=>!v.done && iso>=v.windowStart && iso<=v.windowEnd && ((parseISO(v.windowEnd)-d)/(86400000)<=7 || canUseStore(v.store,d,lastVisit)));
-    }
-    available.sort((a,b)=> a.windowEnd.localeCompare(b.windowEnd) || priority(b.store)-priority(a.store));
-    const maxVisits=(dow===0?2:(dow===6?2:3));
-    const selected=[]; const usedStores=new Set();
-    const mixOrder=['VPP','SYSTEM','QUICK','CDD'];
-    mixOrder.forEach(type=>{
-      if(selected.length>=maxVisits) return;
-      const pool=available.filter(v=>v.type===type && !usedStores.has(v.store.cc));
-      const route=chooseRouteStores(d, pool.map(v=>v.store), 1);
-      if(route.length){ const v=pool.find(x=>x.store.cc===route[0].cc); selected.push(v); usedStores.add(v.store.cc); }
-    });
-    for(const v of available){ if(selected.length>=maxVisits) break; if(!usedStores.has(v.store.cc)){ selected.push(v); usedStores.add(v.store.cc);} }
-
-    // place visits in time slots, avoiding admin meeting.
-    let placed=0;
-    for(const v of selected){
-      const vt=D.visitTypes[v.type];
-      let travel=travelMin(currentLoc, v.store);
-      let depart=addMinToTime(current, -travel);
-      // At start day, current is arrival time already; include commute before start as visible.
-      if(placed===0){
-        pushEvent(dayEvents,{date:iso,start:depart,end:current,title:`Traslado · Casa → ${v.store.name}`,type:'TRAVEL',kind:'Traslado',store:v.store,focus:`Salida sugerida para estar en tienda a las ${current}.`, color:D.visitTypes.TRAVEL.color});
-      } else {
-        pushEvent(dayEvents,{date:iso,start:current,end:addMinToTime(current,travel),title:`Traslado · ${currentLoc.name} → ${v.store.name}`,type:'TRAVEL',kind:'Traslado',store:v.store,focus:'Espacio entre tiendas. No compactar.', color:D.visitTypes.TRAVEL.color});
-        current=addMinToTime(current,travel);
-      }
-      let startTime=current, endTime=addMinToTime(startTime, vt.duration);
-      if(dow===2 && overlapsTime(startTime,endTime,'13:00','14:30')){
-        if(minutesBetween(startTime,'13:00')>30){
-          // leave adaptation until meeting
-          pushEvent(dayEvents,{date:iso,start:startTime,end:'13:00',title:'Adaptación a lo inesperado',type:'BUFFER',kind:'Buffer',focus:'Espacio intencional para seguimiento, validaciones o ajuste de ruta.', color:D.visitTypes.BUFFER.color});
-        }
-        current='14:30'; startTime=current; endTime=addMinToTime(startTime, vt.duration);
-      }
-      if(!dayEvents.some(e=>e.type==='LUNCH') && minutesBetween('12:00',startTime)<=0){
-        pushEvent(dayEvents,{date:iso,start:startTime,end:addMinToTime(startTime,60),title:'Comida',type:'LUNCH',kind:'Comida',focus:'1 hora de comida diaria.', color:D.visitTypes.LUNCH.color});
-        current=addMinToTime(startTime,60); startTime=current; endTime=addMinToTime(startTime, vt.duration);
-      }
-      if(minutesBetween(endTime,dayEnd)<0) continue;
-      pushEvent(dayEvents,{date:iso,start:startTime,end:endTime,title:`${vt.label} · ${v.store.cc} ${v.store.name}`,type:v.type,kind:vt.category,store:v.store,period:v.period,focus:approachFocus(v.store,v.type,campaignFor(d)), color:vt.color});
-      current=endTime; currentLoc=v.store; lastVisit[v.store.cc]=iso; v.done=true; placed++;
-    }
-    if(!dayEvents.some(e=>e.type==='LUNCH') && dow>=1 && dow<=6){
-      const lunchStart = minutesBetween(current,'13:30')>0 ? current : '13:30';
-      if(minutesBetween(lunchStart,dayEnd)>=60) pushEvent(dayEvents,{date:iso,start:lunchStart,end:addMinToTime(lunchStart,60),title:'Comida',type:'LUNCH',kind:'Comida',focus:'1 hora de comida diaria.', color:D.visitTypes.LUNCH.color});
-    }
-    // Add buffer: 4 hours per week split. One hour on work days when possible.
-    if(dow>=1 && dow<=5){
-      const last = dayEvents.filter(e=>e.start!=='00:00').sort((a,b)=>a.end.localeCompare(b.end)).at(-1);
-      let bs = last ? last.end : current;
-      if(minutesBetween(bs,dayEnd)>=60) pushEvent(dayEvents,{date:iso,start:bs,end:addMinToTime(bs,60),title:'Adaptación a lo inesperado',type:'BUFFER',kind:'Buffer',focus:'Espacio intencional para resolver imprevistos, ajustar plan o capturar notas de visita.', color:D.visitTypes.BUFFER.color});
-    }
-    events.push(...dayEvents);
-  }
-  state.events=events.sort((a,b)=>a.date.localeCompare(b.date)||a.start.localeCompare(b.start));
-  state.generated=true;
-  renderAll();
-}
-function escapeHtml(s){ return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
-function renderAll(){ renderKPIs(); renderMonth(); renderTimeline(); renderStores(); renderDetail(); }
-function renderKPIs(){
-  const month=Number($('month').value), year=Number($('year').value);
-  const ev=state.events.filter(e=>{const d=parseISO(e.date); return d.getFullYear()===year && d.getMonth()===month;});
-  const physical=ev.filter(e=>e.store && ['VPP','SYSTEM','QUICK','CDD'].includes(e.type));
-  const covered=new Set(physical.map(e=>e.store.cc));
-  const vpp=physical.filter(e=>e.type==='VPP').length;
-  const cdd=physical.filter(e=>e.type==='CDD').length;
-  const wk=physical.filter(e=>{const dow=parseISO(e.date).getDay(); return dow===0||dow===6;}).length;
-  $('kpis').innerHTML=`
-    <div class="kpi"><span>Visitas físicas mes</span><b>${physical.length}</b></div>
-    <div class="kpi"><span>Tiendas cubiertas</span><b>${covered.size}/10</b></div>
-    <div class="kpi"><span>VPP / SOA</span><b>${vpp}</b></div>
-    <div class="kpi"><span>CDD</span><b>${cdd}</b></div>
-    <div class="kpi"><span>Fin de semana</span><b>${wk}</b></div>`;
-}
-function renderMonth(){
-  const year=Number($('year').value), month=Number($('month').value);
-  $('calendarTitle').textContent=`Agenda · ${monthNames[month]} ${year}`;
-  const first=new Date(year,month,1); const start=addDays(first,-((first.getDay()+6)%7));
-  const monthEvents=state.events.filter(e=>{const d=parseISO(e.date); return d.getFullYear()===year && d.getMonth()===month;});
-  let html='<div class="weekdays"><b>L</b><b>M</b><b>X</b><b>J</b><b>V</b><b>S</b><b>D</b></div><div class="calgrid">';
-  for(let i=0;i<42;i++){
-    const d=addDays(start,i); const iso=dateISO(d); const dim=d.getMonth()!==month?' muted':'';
-    const dayEv=state.events.filter(e=>e.date===iso).slice(0,5);
-    html+=`<div class="day${dim}"><strong>${d.getDate()}</strong>${dayEv.map(e=>`<span class="pill" style="background:${e.color||'#777'}" title="${escapeHtml(e.focus)}">${e.start} ${escapeHtml(e.title)}</span>`).join('')}</div>`;
-  }
-  html+='</div>'; $('calendar').innerHTML=html;
-}
-function renderTimeline(){
-  const events=filteredEvents();
-  $('timeline').innerHTML=events.slice(0,80).map(e=>{
-    const store=e.store?`${e.store.cc} · ${e.store.name}<small>${e.store.manager}<br>${e.store.domain} · ${e.store.tier} · ${e.store.type}</small>`:'-';
-    const maps=e.store?`<a target="_blank" href="${e.store.maps}">Maps</a><small>${e.store.cluster}</small>`:'Actividad administrativa';
-    return `<tr><td>${fmtDate(e.date)}</td><td>${e.start}<br>${e.end}</td><td><b>${escapeHtml(e.title)}</b><small>${e.period||''}</small></td><td>${store}</td><td><span class="tag" style="--c:${e.color||'#777'}">${e.kind}</span></td><td>${escapeHtml(e.focus)}</td><td>${maps}</td></tr>`;
-  }).join('');
-}
-function filteredEvents(){
-  const year=Number($('year').value), month=Number($('month').value), type=$('type').value, store=$('store').value, q=($('search').value||'').toLowerCase();
-  return state.events.filter(e=>{const d=parseISO(e.date); if(d.getFullYear()!==year||d.getMonth()!==month)return false; if(type!=='ALL'&&e.type!==type)return false; if(store!=='ALL'&&e.store?.cc!==store)return false; const hay=(e.title+' '+(e.focus||'')+' '+(e.store?.name||'')+' '+(e.store?.manager||'')).toLowerCase(); return hay.includes(q);});
-}
-function fmtDate(iso){ const d=parseISO(iso); return `${dowNames[d.getDay()]} ${pad(d.getDate())} ${monthNames[d.getMonth()].slice(0,3)}`; }
-function renderStores(){
-  $('stores').innerHTML=D.stores.map(s=>`<article class="storecard ${s.domain.toLowerCase()}"><h4>${s.cc} · ${s.name}</h4><p>${s.manager}</p><b>${s.domain}</b><small>${s.cluster} · ${s.tier} · ${s.seats} seats</small></article>`).join('');
-}
-function renderDetail(){
-  const month=Number($('month').value), year=Number($('year').value);
-  const camp=D.campaigns.filter(c=>{const s=parseISO(c.planningStart), e=parseISO(c.campaignEnd); return (s.getFullYear()<year||s.getMonth()<=month)&&(e.getFullYear()>year||e.getMonth()>=month);});
-  $('intent').innerHTML=`<h3>Intencionalidad del mes</h3>${camp.map(c=>`<div class="intent"><b>${c.key}</b><p><strong>Planificación:</strong> ${c.planningStart} a ${c.planningEnd}</p><p><strong>Campaña:</strong> ${c.campaignStart} a ${c.campaignEnd}</p></div>`).join('')}<div class="intent light"><b>Regla DM 360°</b><p>Ideal: 1 visita por tienda por semana. Mínimo: no pasar más de 10 días sin contacto físico o táctico.</p><p>En cada periodo: VPP/SOA, System Check/Observe & Coach, Conexión rápida y CDD cuando aplique por trimestre.</p></div>`;
-}
-function addBlock(){
-  const start=$('blockStart').value, end=$('blockEnd').value, reason=$('blockReason').value||'Bloqueo'; if(!start||!end) return;
-  state.blocks.push({start,end,reason}); buildPlan();
-}
-function exportICS(scope='month'){
-  const year=Number($('year').value), month=Number($('month').value);
-  const ev=state.events.filter(e=> scope==='year' || (parseISO(e.date).getFullYear()===year && parseISO(e.date).getMonth()===month));
-  const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Planner DM v3//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH'];
-  ev.forEach((e,i)=>{
-    const d=e.date.replaceAll('-',''); const st=e.start.replace(':','')+'00'; const en=e.end.replace(':','')+'00';
-    const desc=(e.focus||'').replace(/\n/g,' ').replace(/,/g,';');
-    lines.push('BEGIN:VEVENT',`UID:planner-dm-v3-${d}-${i}@planner`, `DTSTAMP:${d}T060000Z`, `DTSTART:${d}T${st}`, `DTEND:${d}T${en}`, `SUMMARY:${e.title}`, `DESCRIPTION:${desc}`, e.store?`LOCATION:${e.store.name}`:'LOCATION:', 'END:VEVENT');
-  });
-  lines.push('END:VCALENDAR');
-  const blob=new Blob([lines.join('\r\n')],{type:'text/calendar;charset=utf-8'}); const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob); a.download=scope==='year'?'Planner_DM_2026.ics':`Planner_DM_${monthNames[month]}_${year}.ics`; a.click(); URL.revokeObjectURL(a.href);
-}
-function init(){
-  $('year').innerHTML='<option>2026</option>';
-  $('month').innerHTML=monthNames.map((m,i)=>`<option value="${i}" ${i===6?'selected':''}>${m}</option>`).join('');
-  $('type').innerHTML='<option value="ALL">Todas</option>'+Object.entries(D.visitTypes).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');
-  $('store').innerHTML='<option value="ALL">Todas</option>'+D.stores.map(s=>`<option value="${s.cc}">${s.cc} · ${s.name}</option>`).join('');
-  ['year','month','type','store','search'].forEach(id=>$(id).addEventListener('input',renderAll));
-  $('generate').addEventListener('click',buildPlan); $('blockBtn').addEventListener('click',addBlock);
-  $('icsMonth').addEventListener('click',()=>exportICS('month')); $('icsYear').addEventListener('click',()=>exportICS('year'));
-  buildPlan();
-}
-document.addEventListener('DOMContentLoaded',init);
+function applyBlocks(){ blocks.forEach(b=>{ for(let d=date(b.start); d<=date(b.end); d=addDays(d,1)){const key=iso(d); events=events.filter(e=>!(e.date===key && e.store)); event(d,'09:00','18:00',b.reason,'Bloqueo',null,'Bloqueo de día completo: sin visitas físicas del DM.'); } }); }
+function getFiltered(){const month=+$('monthFilter').value, week=$('weekFilter').value, type=$('typeFilter').value, store=$('storeFilter').value, q=$('searchFilter').value.toLowerCase().trim(); return events.filter(e=>{const d=date(e.date); if(d.getMonth()!==month)return false; if(week!=='all'&&String(getWeekOfMonth(d))!==week)return false; if(type!=='all'&&e.type!==type)return false; if(store!=='all'&&(!e.store||e.store.cc!==store))return false; const hay=[e.title,e.type,e.focus,e.store?.name,e.store?.manager,e.store?.cc].join(' ').toLowerCase(); return !q||hay.includes(q);}).sort((a,b)=>(a.date+a.start).localeCompare(b.date+b.start));}
+function getWeekOfMonth(d){return Math.ceil((d.getDate()+dowMon(new Date(d.getFullYear(),d.getMonth(),1)))/7)}
+function fillFilters(){const mf=$('monthFilter'); MONTHS.forEach((m,i)=>{if(i>=5){let o=document.createElement('option');o.value=i;o.textContent=m;mf.appendChild(o)}}); mf.value='6'; DM_DATA.visitTypes.forEach(t=>{let o=document.createElement('option');o.value=t;o.textContent=t;$('typeFilter').appendChild(o)}); DM_DATA.stores.forEach(s=>{let o=document.createElement('option');o.value=s.cc;o.textContent=`${s.cc} · ${s.name}`;$('storeFilter').appendChild(o)}); updateWeeks();}
+function updateWeeks(){const wf=$('weekFilter'), m=+$('monthFilter').value, prev=wf.value; wf.innerHTML='<option value="all">Todas</option>'; const last=new Date(2026,m+1,0).getDate(); const max=getWeekOfMonth(new Date(2026,m,last)); for(let i=1;i<=max;i++){let o=document.createElement('option');o.value=i;o.textContent=`Semana ${i}`;wf.appendChild(o)} if([...wf.options].some(o=>o.value===prev)) wf.value=prev;}
+function render(){updateWeeks(); const filtered=getFiltered(); renderKPIs(filtered); renderIntent(); renderLegend(); renderCalendar(filtered); renderWeek(filtered); renderTable(filtered); renderRoute(filtered);}
+function renderKPIs(f){const storeSet=new Set(f.filter(e=>e.store && !['Traslado','Comida'].includes(e.type)).map(e=>e.store.cc)); const physical=f.filter(e=>e.store&&!['Traslado','Comida','Bloqueo'].includes(e.type)); const p3=DM_DATA.stores.filter(s=>s.priority>=3).map(s=>s.cc); const p3vis=physical.filter(e=>p3.includes(e.store.cc)).length; $('kpis').innerHTML=[['Visitas mes',physical.length,'actividades físicas'],['Tiendas cubiertas',`${storeSet.size}/10`,'portafolio'],['Prioridad alta',p3vis,'visitas a tiendas críticas'],['VPP/SOA',f.filter(e=>e.type==='VPP/SOA').length,'periodo'],['System Check',f.filter(e=>e.type==='System Check').length,'inventario/procesos'],['Adaptación',f.filter(e=>e.type==='Adaptación').length,'espacios protegidos']].map(k=>`<div class="kpi"><small>${k[0]}</small><strong>${k[1]}</strong><span>${k[2]}</span></div>`).join('')}
+function renderIntent(){const m=+$('monthFilter').value, day=new Date(2026,m,15), c=campaignFor(day); const high=DM_DATA.stores.filter(s=>s.priority>=3).map(s=>s.short).join(', '); $('intentBox').innerHTML=`<div class="intentCard"><h3>${c.name}</h3><p><b>Planificación:</b> ${c.planningStart} a ${c.planningEnd}</p><p><b>Campaña:</b> ${c.campaignStart} a ${c.campaignEnd}</p><p><b>Regla:</b> 1 VPP/SOA, 1 System Check y 1 Conexión por tienda dentro del periodo.</p></div><div class="intentCard"><h3>Approach DM</h3><p>Preparar → hombro a hombro → seguimiento. Comunicar intención, revisar notas previas, celebrar avances y cerrar con siguientes pasos.</p><div class="priority"><span class="pill high">Alta: ${high}</span><span class="pill mid">Media: Apropiación</span><span class="pill low">Estable: Asesoramiento</span></div></div>`}
+function renderLegend(){$('legend').innerHTML=Object.entries(DM_DATA.colors).filter(([k])=>['VPP/SOA','System Check','Conexión rápida','CDD','Adaptación','Traslado','Comida','Arranque campaña'].includes(k)).map(([k,c])=>`<span style="--c:${c}">${k}</span>`).join('')}
+function renderCalendar(f){const m=+$('monthFilter').value; $('calendarTitle').textContent=`Agenda · ${MONTHS[m]} 2026`; const cal=$('calendar'); cal.innerHTML=DOW.map(d=>`<div class="dow">${d}</div>`).join(''); const first=new Date(2026,m,1), start=addDays(first,-dowMon(first)); for(let i=0;i<42;i++){const d=addDays(start,i), key=iso(d), same=d.getMonth()===m, ev=f.filter(e=>e.date===key).slice(0,5); cal.innerHTML+=`<div class="day ${same?'':'muted'} ${dowMon(d)>=5?'weekend':''}"><div class="dayNum">${d.getDate()}</div>${ev.map(e=>`<span class="event ${e.type==='Adaptación'?'adapt':''} ${e.type==='Bloqueo'?'block':''}" style="--c:${DM_DATA.colors[e.type]||'#60736b'}">${e.start} ${e.title}</span>`).join('')}${f.filter(e=>e.date===key).length>5?`<span class="event" style="--c:#99a7a1">+${f.filter(e=>e.date===key).length-5} más</span>`:''}</div>`}}
+function renderWeek(f){const week=$('weekFilter').value, m=+$('monthFilter').value; const wf=week==='all'?getWeekOfMonth(new Date(2026,m,1)):Number(week); $('weekTitle').textContent=`Semana ${wf}`; const days=[]; for(let d=new Date(2026,m,1);d.getMonth()===m;d=addDays(d,1))if(getWeekOfMonth(d)===wf)days.push(new Date(d)); $('weekTimeline').innerHTML=days.map(d=>{const ev=f.filter(e=>e.date===iso(d)); return `<div class="weekCol"><div class="weekHead">${fmt(d)}</div>${ev.map(e=>`<div class="slot"><b>${e.start} - ${e.end} · ${e.title}</b><small>${e.store?e.store.name:''} ${e.focus}</small></div>`).join('')||'<div class="slot"><b>Sin actividades filtradas</b><small>Disponible / descanso según regla.</small></div>'}</div>`}).join('')}
+function renderTable(f){$('detailCount').textContent=`${f.length} actividades`; $('detailTable').querySelector('tbody').innerHTML=f.map(e=>`<tr><td>${fmt(date(e.date))}</td><td>${e.start}<br>${e.end}</td><td><b>${e.title}</b></td><td>${e.store?`${e.store.cc} · ${e.store.name}<br><small>${e.store.manager}<br>${e.store.domain}</small>`:'-'}</td><td>${e.type}</td><td>${e.focus}</td><td>${e.store?`<a target="_blank" href="${e.store.maps}">Maps</a><br><small>${e.store.cluster}</small>`:'Actividad administrativa'}</td></tr>`).join('')}
+function renderRoute(f){let dayEvents=f.filter(e=>e.store&&e.route); if(!dayEvents.length) dayEvents=f.filter(e=>e.store).slice(0,6); const unique=[]; dayEvents.forEach(e=>{if(!unique.some(s=>s.cc===e.store.cc)) unique.push(e.store)}); const pts=[DM_DATA.home,...unique,DM_DATA.home]; const lats=pts.map(p=>p.lat),lngs=pts.map(p=>p.lng),minLat=Math.min(...lats),maxLat=Math.max(...lats),minLng=Math.min(...lngs),maxLng=Math.max(...lngs); const x=p=>20+((p.lng-minLng)/(maxLng-minLng||1))*210, y=p=>220-((p.lat-minLat)/(maxLat-minLat||1))*190; $('routeMap').innerHTML=`<svg viewBox="0 0 250 250" width="100%" height="100%"><polyline points="${pts.map(p=>`${x(p)},${y(p)}`).join(' ')}" fill="none" stroke="#006241" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity=".75"/>${pts.map((p,i)=>`<g><circle cx="${x(p)}" cy="${y(p)}" r="${i===0||i===pts.length-1?7:6}" fill="${i===0||i===pts.length-1?'#c39a3c':'#006241'}"/><text x="${x(p)+8}" y="${y(p)-8}" font-size="9" font-weight="800" fill="#1e3932">${i===0?'Casa':p.short}</text></g>`).join('')}</svg>`; $('routeList').innerHTML=pts.slice(0,-1).map((p,i)=>`<div class="routeStep"><b>${i===0?'Salida':`Parada ${i}`}</b><br>${p.name||p.short} ${pts[i+1]?`→ ${pts[i+1].name||pts[i+1].short} · ${travelMin(p,pts[i+1])} min`:''}</div>`).join('')}
+function download(name,content,type='text/calendar'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();URL.revokeObjectURL(a.href)}
+function icsFor(list){function dt(e,t){return e.date.replaceAll('-','')+'T'+t.replace(':','')+'00'} return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Planner DM//ES'].concat(list.map(e=>['BEGIN:VEVENT',`UID:${e.id}@planner-dm`,`DTSTAMP:${dt(e,e.start)}`,`DTSTART:${dt(e,e.start)}`,`DTEND:${dt(e,e.end)}`,`SUMMARY:${e.title}`,`DESCRIPTION:${(e.focus||'').replace(/\n/g,' ')}`,`LOCATION:${e.store?e.store.name:''}`,'END:VEVENT'].join('\n'))).concat(['END:VCALENDAR']).join('\n')}
+function bind(){['monthFilter','weekFilter','typeFilter','storeFilter','searchFilter'].forEach(id=>$(id).addEventListener('input',render)); $('generateBtn').onclick=()=>{buildAgenda();render()}; $('blockBtn').onclick=()=>{blocks.push({start:$('blockStart').value,end:$('blockEnd').value,reason:$('blockReason').value||'Bloqueo'});buildAgenda();render()}; $('icsMonthBtn').onclick=()=>download(`Planner_DM_${MONTHS[$('monthFilter').value]}_2026.ics`,icsFor(getFiltered())); $('icsYearBtn').onclick=()=>download('Planner_DM_2026.ics',icsFor(events));}
+fillFilters(); bind(); buildAgenda(); render();

@@ -1,32 +1,39 @@
-# Planner_DM v3.0
+# Planner_DM v4.0
 
-Planner ejecutivo para Gerente de Distrito. Genera agenda estratégica desde el 22 de junio 2026 al cierre del año con visitas por periodo, rutas, bloqueos, comida, traslados, espacios de adaptación a lo inesperado y exportación `.ics` para Outlook.
+Agenda ejecutiva para Gerente de Distrito Starbucks 2026.
 
-## Reglas principales
+## Qué incluye
 
-- Inicio de agenda: 22 de junio 2026.
-- Jornada planeada: hasta 10 horas incluyendo traslados.
-- Lunes: llegada a tienda 08:00.
-- Martes a viernes: llegada a tienda 08:30.
-- Martes 13:00-14:30 se bloquea Reunión Centro Norte.
-- 2 a 3 tiendas por día según ruta y tipo de visita.
-- 1 hora de comida al día.
-- Espacios libres anotados como **Adaptación a lo inesperado**.
-- Vacaciones o bloqueos eliminan visitas físicas y fuerzan reajuste.
-- Fin de semana = sábado y domingo.
-- Al menos un sábado al mes y un domingo al mes con enfoque operativo.
-- No junta la misma tienda dentro de 10 días salvo cierre de periodo.
+- Agenda anual desde el 22 de junio al cierre de 2026.
+- Filtros dinámicos por año, mes, semana, tipo de visita y tienda.
+- Calendario mensual ejecutivo y vista semanal dinámica.
+- Ruta sugerida del día con mini mapa y secuencia Casa → Tienda 1 → Tienda 2 → Tienda 3 → Casa.
+- Exportación ICS mensual y anual para Outlook.
+- Bloqueos de agenda: elimina visitas físicas del rango seleccionado y mantiene actividades informativas.
+- Jornada estimada de 10 horas: traslados, comida a media jornada, visitas y adaptación a lo inesperado.
+- Día de arranque Summer 2026 con visita desde 06:00.
+- Reglas de cobertura: tiendas de mayor prioridad con más frecuencia, tiendas estables con cobertura mínima mensual.
+- Enfoque Approach: preparación, hombro a hombro, seguimiento, intención de visita y próximos pasos.
 
-## Tipos de visita
+## Estructura
 
-- VPP / SOA: 4:30 h.
-- Observe & Coach / System Check: 1:30 h.
-- Conexión rápida: 0:45 h.
-- CDD: 1:45 h en enero, abril, julio y octubre.
+```text
+index.html
+css/styles.css
+js/data.js
+js/app.js
+README.md
+```
 
-## Uso en GitHub Pages
+## Publicación en GitHub Pages
 
-Subir todos los archivos a la raíz del repositorio y activar:
+1. Subir todos los archivos al repositorio `Planner_DM`.
+2. Ir a `Settings > Pages`.
+3. Source: `Deploy from a branch`.
+4. Branch: `main`.
+5. Folder: `/root`.
+6. Guardar.
 
-Settings → Pages → Deploy from a branch → main → /(root)
+## Nota
 
+La mejora continua se realizará con el uso real de la agenda: al detectar cambios de prioridades, indicadores o bloqueos, se ajusta el motor de visitas y la ruta sugerida.
