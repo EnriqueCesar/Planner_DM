@@ -1,41 +1,32 @@
-# Planner_DM 2.0
+# Planner_DM v3.0
 
-Agenda ejecutiva para Gerente de Distrito Starbucks 2026.
+Planner ejecutivo para Gerente de Distrito. Genera agenda estratégica desde el 22 de junio 2026 al cierre del año con visitas por periodo, rutas, bloqueos, comida, traslados, espacios de adaptación a lo inesperado y exportación `.ics` para Outlook.
 
-## Qué incluye
-- Agenda anual estratégica desde el 22 de junio al cierre del año.
-- Calendario visual tipo Outlook.
-- Motor de visitas por tienda con regla ideal semanal y mínimo cada 10 días.
-- Bloqueos de agenda: vacaciones bloquea todo el día y elimina visitas físicas del rango.
-- Reajuste automático de visitas después de bloqueos.
-- Viernes como día laboral normal.
-- Fines de semana considerados solo sábado y domingo.
-- 1 hora de comida diaria.
-- 4 horas semanales reservadas para imprevistos.
-- Ruta sugerida por cluster desde Casa Enrique.
-- Priorización por dominio Approach: Aprendizaje, Apropiación, Asesoramiento.
-- Exportación ICS mensual o anual para Outlook.
+## Reglas principales
 
-## Estructura
-```text
-Planner_DM/
-├── index.html
-├── README.md
-├── css/
-│   └── styles.css
-├── js/
-│   └── app.js
-└── data/
-    └── planner_data.json
-```
+- Inicio de agenda: 22 de junio 2026.
+- Jornada planeada: hasta 10 horas incluyendo traslados.
+- Lunes: llegada a tienda 08:00.
+- Martes a viernes: llegada a tienda 08:30.
+- Martes 13:00-14:30 se bloquea Reunión Centro Norte.
+- 2 a 3 tiendas por día según ruta y tipo de visita.
+- 1 hora de comida al día.
+- Espacios libres anotados como **Adaptación a lo inesperado**.
+- Vacaciones o bloqueos eliminan visitas físicas y fuerzan reajuste.
+- Fin de semana = sábado y domingo.
+- Al menos un sábado al mes y un domingo al mes con enfoque operativo.
+- No junta la misma tienda dentro de 10 días salvo cierre de periodo.
+
+## Tipos de visita
+
+- VPP / SOA: 4:30 h.
+- Observe & Coach / System Check: 1:30 h.
+- Conexión rápida: 0:45 h.
+- CDD: 1:45 h en enero, abril, julio y octubre.
 
 ## Uso en GitHub Pages
-1. Subir todos los archivos al repositorio.
-2. Ir a Settings > Pages.
-3. Source: Deploy from a branch.
-4. Branch: main.
-5. Folder: /(root).
-6. Save.
 
-## Versión
-2.0
+Subir todos los archivos a la raíz del repositorio y activar:
+
+Settings → Pages → Deploy from a branch → main → /(root)
+
