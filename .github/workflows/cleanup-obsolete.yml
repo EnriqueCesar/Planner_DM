@@ -18,7 +18,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Regenerar guía de visitas
-        run: python tools/build_visit_guide.py
+        run: |
+          python tools/build_visit_guide.py
+          python tools/build_operating_schedule.py
       - name: Auditar obsoletos (sin borrar)
         if: github.event_name != 'workflow_dispatch' || inputs.apply == false
         run: python tools/cleanup_obsolete.py
