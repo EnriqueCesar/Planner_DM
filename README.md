@@ -1,49 +1,28 @@
-# Planner DM 3.0 · Mejora continua
+# Planner DM 4.0 · Excelencia Operativa
 
-Un planner simple para elevar la ejecución a través de los líderes de tienda.
+Guía visual para liderar resultados a través de otros. La agenda inicia a las 08:00 en tienda, protege espacio para lo inesperado y organiza una zona por día.
 
-## Cadencia
+## Cuatro nombres de visita
 
-- **1 tienda cada 10 días.** El planner garantiza el siguiente contacto de cada tienda.
-- **Lunes y martes:** administrativo con **1 a 2 tiendas**. La primera Junta Regional de cada mes es presencial.
-- **Miércoles a domingo:** operación con **1 a 3 tiendas** y una zona por día.
-- **08:00:** iniciar ya en tienda. **18:00 máximo:** estar en casa.
-- Cada día incluye un espacio protegido para lo inesperado; no debe comerse el foco principal.
+| Visita | Para qué sirve | Cierre esperado |
+|---|---|---|
+| VPP · Planificación | Verificar y priorizar el siguiente desarrollo. | Prioridad, dueño y fecha. |
+| Observación y capacitación | Ver, enseñar y practicar el estándar con el líder. | Conducta observable en el siguiente pico. |
+| Conexión rápida | Quitar una barrera y acelerar el resultado. | Compromiso breve y seguimiento. |
+| Desempeño y desarrollo · CDD | Conversar de desempeño, aspiración y crecimiento. | Siguiente experiencia de desarrollo. |
 
-## En qué te debes enfocar como DM
+Cada período programa **una CDD con cada uno de los 10 gerentes**. Los apoyos administrativos, PPK, junta regional y espacios inesperados se muestran en la agenda, pero no compiten en el filtro de nombre de visita.
 
-1. **Dato:** Perfil Tienda DM y CeNtro Partner.
-2. **Retro:** equipo y clientes.
-3. **Observación:** el estándar en el momento crítico.
-4. **Capacidad:** no rescatar; preguntar, practicar y validar.
+## Regla de operación
 
-Salida obligatoria de cada visita: **1 foco · 1 práctica · 1 dueño · 1 fecha**.
+- Lunes y martes: administrativo + 1–2 tiendas.
+- Miércoles a domingo: 1–3 tiendas, operación y coaching.
+- Una visita de ciclo por tienda cada 10 días.
+- Una sola zona por ruta: Izcalli o Coacalco–Ecatepec.
+- Salida de cada visita: **práctica, dueño, fecha y evidencia en 72 h**.
 
-## Tipos de visita unificados
+## Datos y mantenimiento
 
-- Mejora continua
-- Sistema crítico
-- Seguimiento 10 días
-- Desarrollo y talento
-- Conversación de desempeño (CDD)
-- Junta Regional
-- PPK · informativo
-- Administrativo / soporte
-
-## Sistemas prioritarios
-
-El CMS sintetiza el archivo `Tipo Visitas DM.csv` en: Duty Roster y limpieza, UKG/cobertura, inventario/back, efectivo, RSA, experiencia y bebidas. El CSV es un radar: no se replica completo en la agenda.
-
-## Campañas
-
-Filtro único para **Fall 26** y **Xmas 26**. PPK se muestra como apoyo informativo de ejecución, no como visita de mejora.
-
-## Desarrollo
-
-**Mary · Cosmopol** está marcada como prioridad de desarrollo y cobertura. Sus visitas se usan para crear capacidad, acompañar actividades de desarrollo y validar progreso.
-
-## Archivos
-
-- `CMS/Planner_DM_3_0_CMS.xlsx`: tablero, visitas, acciones, soporte y radar de sistemas.
-- `data/agenda_base.js`: datos y taxonomía de la agenda.
-- `js/app.js`: generación de ciclo, filtro y rutas.
+- `tools/build_visit_guide.py` genera la guía breve desde `data/radar_sistemas.csv`.
+- `.github/workflows/cleanup-obsolete.yml` audita siempre y solo elimina, bajo ejecución manual, los archivos autorizados en `tools/obsolete-files.json`.
+- `CMS/Planner_DM_4_0_CMS.xlsx` concentra agenda, CDD, acciones, soportes y radar de sistemas.
