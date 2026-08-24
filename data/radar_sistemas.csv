@@ -1,0 +1,9 @@
+Actividad,Título Página,Pregunta,Tipo de Pregunta,Señal CSV,Sistema a revisar,Pregunta DM
+System Check Inventario | Distrital,Las áreas de almacenamiento del back,"Las áreas de almacenamiento en el back están limpias, organizadas y señalizadas con máximos y mínimos.",MultipleChoice,68.4%,Inventario / back,"¿Qué condición impide que este sistema funcione hoy y quién la corrige?"
+System Check programación | Distrital,COBERTURA,"La programación cubre disponibilidad y necesidad de clientes y partners.",MultipleChoice,79.2%,UKG / cobertura,"¿Qué turno queda descubierto y qué ajuste harás antes del próximo pico?"
+System Check manejo de efectivo | Distrital,Garantizar la seguridad del efectivo,"Los partners trabajan en las cajas que tienen asignadas.",MultipleChoice,78.2%,Efectivo,"¿Qué control no se está ejecutando de forma consistente?"
+System Check RSA,Visita RSA (factores críticos),"Solo se utilizan alimentos con caducidad y/o vida secundaria vigente y legible.",MultipleChoice,88.2%,RSA,"¿Dónde está el mayor riesgo y cómo lo previene el líder hoy?"
+SOA | Distrital,Experiencia de servicio,"Los baristas ofrecen un saludo amistoso y hacen de cada momento algo especial.",MultipleChoice,90.9%,Experiencia,"¿Qué comportamiento del equipo hará visible la experiencia en el próximo pico?"
+SOA | Gerente de Unidad,Calidad de bebidas,"Estándar de ejecución de bebida en el momento de mayor demanda.",MultipleChoice,Referencia,Bebida,"¿Qué práctica concreta elevará la calidad hoy?"
+System Check canales digitales,Preparación para la entrega,"La tienda cuenta con servicio WEB estable para mantenerse conectada.",Instruction,87.2%,Canales digitales,"¿Qué incidencia debe escalarse y cuál es su impacto en la orden?"
+Conexión Rápida | Distrital,Conexión rápida,"¿Cuál es el objetivo de tu visita el día de hoy?",Simple,0.0%,Claridad de visita,"¿Qué resultado o sistema debes mover hoy?"

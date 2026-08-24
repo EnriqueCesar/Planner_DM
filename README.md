@@ -1,43 +1,49 @@
-# Planner DM 2.0
+# Planner DM 3.0 · Mejora continua
 
-Guía operativa para que el DM genere resultados a través de otros.
+Un planner simple para elevar la ejecución a través de los líderes de tienda.
 
-## Principio de diseño
+## Cadencia
 
-Cada visita debe dejar: **1 foco · 1 práctica · 1 dueño · 1 fecha**. La validación ocurre con evidencia en 72 horas, no solo con una conversación.
+- **1 tienda cada 10 días.** El planner garantiza el siguiente contacto de cada tienda.
+- **Lunes y martes:** administrativo con **1 a 2 tiendas**. La primera Junta Regional de cada mes es presencial.
+- **Miércoles a domingo:** operación con **1 a 3 tiendas** y una zona por día.
+- **08:00:** iniciar ya en tienda. **18:00 máximo:** estar en casa.
+- Cada día incluye un espacio protegido para lo inesperado; no debe comerse el foco principal.
 
-## Cadencia desde el 24 de agosto de 2026
+## En qué te debes enfocar como DM
 
-- **Lunes:** administración. Se revisa el WOE PM del domingo, se cruza Perfil Tienda DM + CeNtro Partner, se prioriza y se escala soporte. Sin visita física; el SM puede entrar más tarde.
-- **Martes:** administración. Junta Regional DM, bajada breve al equipo y actualización de compromisos. Sin visita física.
-- **Miércoles a domingo:** operación y visitas de capacidad; lunes a viernes se inicia a las 08:00 más traslado.
-- **Domingo PM:** WOE e inventario a cargo del SM. Se revisa el lunes con evidencia.
+1. **Dato:** Perfil Tienda DM y CeNtro Partner.
+2. **Retro:** equipo y clientes.
+3. **Observación:** el estándar en el momento crítico.
+4. **Capacidad:** no rescatar; preguntar, practicar y validar.
 
-## Cuatro visitas intencionales
+Salida obligatoria de cada visita: **1 foco · 1 práctica · 1 dueño · 1 fecha**.
 
-1. **VPP/SOA:** resultado, hábito y responsable.
-2. **Observe & Coach:** observar, preguntar, practicar y repetir en el turno.
-3. **WOE / Inventario:** disponibilidad, variación, causa raíz y evidencia.
-4. **Conexión + Seguimiento:** confirmar avance, reconocer y remover barreras.
+## Tipos de visita unificados
 
-## Prioridades de la compañía
+- Mejora continua
+- Sistema crítico
+- Seguimiento 10 días
+- Desarrollo y talento
+- Conversación de desempeño (CDD)
+- Junta Regional
+- PPK · informativo
+- Administrativo / soporte
 
-1. Experiencia
-2. Conexión
-3. Bebida
-4. Recuperación de órdenes
+## Sistemas prioritarios
 
-## Soporte
+El CMS sintetiza el archivo `Tipo Visitas DM.csv` en: Duty Roster y limpieza, UKG/cobertura, inventario/back, efectivo, RSA, experiencia y bebidas. El CSV es un radar: no se replica completo en la agenda.
 
-Las barreras se registran en el CMS por canal: **Sistema, Mantenimiento, COA / Distribuidor y Capacitación**. Siempre registrar impacto, evidencia, responsable y ETA.
+## Campañas
 
-## CMS Excel incluido
+Filtro único para **Fall 26** y **Xmas 26**. PPK se muestra como apoyo informativo de ejecución, no como visita de mejora.
 
-`CMS/Planner_DM_2_0_CMS.xlsx` es la fuente de trabajo semanal. Alimenta Visitas, Acciones y Soporte; el tablero resume ejecución, cobertura, compromisos y barreras.
+## Desarrollo
 
-## Publicación
+**Mary · Cosmopol** está marcada como prioridad de desarrollo y cobertura. Sus visitas se usan para crear capacidad, acompañar actividades de desarrollo y validar progreso.
 
-1. Descomprime el paquete de correcciones.
-2. Sube los archivos a la raíz del repositorio `Planner_DM`, respetando carpetas.
-3. Sube el Excel a `CMS/` si deseas conservarlo dentro del repositorio.
-4. GitHub Pages publica desde `main` y `/root`.
+## Archivos
+
+- `CMS/Planner_DM_3_0_CMS.xlsx`: tablero, visitas, acciones, soporte y radar de sistemas.
+- `data/agenda_base.js`: datos y taxonomía de la agenda.
+- `js/app.js`: generación de ciclo, filtro y rutas.
