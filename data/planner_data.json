@@ -11,42 +11,26 @@
     }
   },
   "settings": {
-    "startDate": "2026-06-22",
+    "startDate": "2026-08-24",
     "endDate": "2026-12-31",
-    "workdayStart": "09:00",
+    "workdayStart": "08:00",
     "workdayEnd": "18:00",
     "lunchMinutes": 60,
     "unexpectedHoursWeekly": 4,
     "meetingCN": {
       "day": 2,
-      "start": "13:00",
-      "end": "14:30"
+      "start": "08:00",
+      "end": "10:00"
     }
   },
   "campaigns": [
     {
-      "name": "World Cup",
-      "planningStart": "2026-03-30",
-      "planningEnd": "2026-06-07",
-      "campaignStart": "2026-05-25",
-      "campaignEnd": "2026-07-19",
-      "dmToSm": "2026-03-23 a 2026-03-29"
-    },
-    {
-      "name": "Summer",
-      "planningStart": "2026-06-01",
-      "planningEnd": "2026-07-19",
-      "campaignStart": "2026-07-20",
-      "campaignEnd": "2026-08-30",
-      "dmToSm": "2026-06-01 a 2026-06-07"
-    },
-    {
       "name": "Fall",
-      "planningStart": "2026-08-03",
+      "planningStart": "2026-08-24",
       "planningEnd": "2026-08-30",
       "campaignStart": "2026-08-31",
       "campaignEnd": "2026-11-02",
-      "dmToSm": "2026-07-27 a 2026-08-02"
+      "dmToSm": "2026-08-24 a 2026-08-30"
     },
     {
       "name": "Xmas",
