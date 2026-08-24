@@ -1,1 +1,27 @@
-
+name: Auditoría y limpieza segura
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Eliminar únicamente los archivos autorizados
+        required: false
+        default: false
+        type: boolean
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Regenerar guía de visitas
+        run: python tools/build_visit_guide.py
+      - name: Auditar obsoletos (sin borrar)
+        if: github.event_name != 'workflow_dispatch' || inputs.apply == false
+        run: python tools/cleanup_obsolete.py
+      - name: Limpiar obsoletos autorizados
+        if: github.event_name == 'workflow_dispatch' && inputs.apply == true
+        run: python tools/cleanup_obsolete.py --apply
